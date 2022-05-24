@@ -1,6 +1,7 @@
 # This file will need to use the DataManager,FlightSearch, FlightData, NotificationManager classes to achieve the program requirements.
 import requests
 import datetime as dt
+from notification_manager import NotificationManager
 
 TEQUILA_END_POINT = 'https://tequila-api.kiwi.com/'
 header = {
@@ -8,15 +9,14 @@ header = {
 }
 SHEETY_END_POINT = 'https://api.sheety.co/f266fc6da30b4c5d27abf38dbec08fea/flightDeals/prices'
 
-
 # TODO 1: Use the Flight Search and Sheety API to populate your own copy of the Google Sheet with
 #  International Air Transport Association (IATA) codes for each city.
 
 # Get city names as a list from google sheet
 sheety_response = requests.get(url=f"{SHEETY_END_POINT}")
 rows = sheety_response.json()['prices']
-city_code_current_price = {row['iataCode']: row['lowestPrice']for row in rows}
-city_names = [row['city']for row in rows]
+city_code_current_price = {row['iataCode']: row['lowestPrice'] for row in rows}
+city_names = [row['city'] for row in rows]
 city_codes = []
 
 # Use a for loop to search for each city's city code and write into Google sheet
@@ -26,7 +26,8 @@ for n in range(len(city_names)):
         'location_types': 'city',
         'limit': 1
     }
-    tequila_response = requests.get(url=f"{TEQUILA_END_POINT}locations/query", headers=header, params=tequila_parameters)
+    tequila_response = requests.get(url=f"{TEQUILA_END_POINT}locations/query", headers=header,
+                                    params=tequila_parameters)
     city_code = tequila_response.json()['locations'][0]['code']
     city_codes.append(city_code)
 
@@ -35,8 +36,8 @@ for n in range(len(city_names)):
             {
                 'iataCode': city_code
             }
-        }
-    id_num = n+2
+    }
+    id_num = n + 2
     requests.put(url=f"{SHEETY_END_POINT}/{id_num}", json=sheety_parameters)
 
 # TODO 2: Use the Flight Search API to check for the cheapest flights from tomorrow to 6 months later for all
@@ -75,14 +76,14 @@ def change_sheet_price(price, i):
     id_number = i + 2
     requests.put(url=f"{SHEETY_END_POINT}/{id_number}", json=change_price_parameters)
 
+
+notification = NotificationManager()
 i = 0
 for (code, price) in city_code_lowest_price.items():
     if price < city_code_current_price[code]:
-        change_sheet_price(price, i)
+        notification.send_message()
+        # change_sheet_price(price, i)
     i += 1
-
 
 # TODO 4: The SMS should include the departure airport IATA code, destination airport IATA code, departure city,
 #  destination city, flight price and flight dates. e.g.
-
-

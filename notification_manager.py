@@ -7,7 +7,7 @@ class NotificationManager:
         self.auth_token = '4a52811e3dfb6ee416505f6ab2bc8594'
 
     def send_message(self):
-        message_to_send = ""
+        message_to_send = "LOW PRICE!!!"
         client = Client(self.account_sid, self.auth_token)
         message = client.messages \
             .create(
