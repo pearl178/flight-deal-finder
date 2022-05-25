@@ -8,6 +8,7 @@ header = {
     'apikey': 'gu3ZrG3H8OXk1DfvSb_22Rra1pJw-Wkf'
 }
 SHEETY_END_POINT = 'https://api.sheety.co/f266fc6da30b4c5d27abf38dbec08fea/flightDeals/prices'
+notification = NotificationManager()
 
 # TODO 1: Use the Flight Search and Sheety API to populate your own copy of the Google Sheet with
 #  International Air Transport Association (IATA) codes for each city.
@@ -58,32 +59,35 @@ for city_code in city_codes:
         'limit': 1
     }
     response = requests.get(url=f"{TEQUILA_END_POINT}search", headers=header, params=search_parameters)
-    price = response.json()['data'][0]['price']
-    city_code_lowest_price[city_code] = price
+    flight_info = response.json()['data'][0]
+    price = flight_info['price']
+    if price < city_code_current_price[city_code]:
+        notification.send_message(flight_info)
+        city_code_lowest_price[city_code] = price
 
 
 # TODO 3: If the price is lower than the lowest price listed in the Google Sheet then send an SMS to your own number
 #  with the Twilio API.
 
 # Change the lowest price in Google sheet if current price is lower than price in the sheet
-def change_sheet_price(price, i):
-    change_price_parameters = {
-        'price':
-            {
-                'lowestPrice': price
-            }
-    }
-    id_number = i + 2
-    requests.put(url=f"{SHEETY_END_POINT}/{id_number}", json=change_price_parameters)
-
-
-notification = NotificationManager()
-i = 0
-for (code, price) in city_code_lowest_price.items():
-    if price < city_code_current_price[code]:
-        notification.send_message()
-        # change_sheet_price(price, i)
-    i += 1
+# def change_sheet_price(price, i):
+#     change_price_parameters = {
+#         'price':
+#             {
+#                 'lowestPrice': price
+#             }
+#     }
+#     id_number = i + 2
+#     requests.put(url=f"{SHEETY_END_POINT}/{id_number}", json=change_price_parameters)
+#
+#
+#
+# i = 0
+# for (code, price) in city_code_lowest_price.items():
+#     if price < city_code_current_price[code]:
+#         notification.send_message()
+#         # change_sheet_price(price, i)
+#     i += 1
 
 # TODO 4: The SMS should include the departure airport IATA code, destination airport IATA code, departure city,
 #  destination city, flight price and flight dates. e.g.
