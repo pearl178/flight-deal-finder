@@ -5,7 +5,7 @@ import datetime as dt
 class NotificationManager:
     def __init__(self):
         self.account_sid = 'AC5291353c75429cc516071c422886464f'
-        self.auth_token = '4a52811e3dfb6ee416505f6ab2bc8594'
+        self.auth_token = 'ff6f93552cdb3b9acb528fe6722077ac'
 
     def send_message(self, info):
         departure_time = dt.datetime.fromtimestamp(info['dTime'])
